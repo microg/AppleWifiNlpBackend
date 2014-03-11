@@ -4,8 +4,8 @@ AppleWifiNlpBackend
 
 Location calculation is done onboard and wifi locations are cached to minimize data usage.
 
-Compilation
------------
+Building
+--------
 Currently does not ship any build system or build system specific files. Use your favourite one.
 
 Used libraries: 
