@@ -20,17 +20,17 @@ import java.util.Set;
 public class BackendService extends LocationBackendService {
 
 	private static final String TAG = BackendService.class.getName();
-	public static final long THIRTY_DAYS = 2592000000L;
-	private BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
+	private static final long THIRTY_DAYS = 2592000000L;
+	private final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			reportUpdate();
 		}
 	};
+	private final LocationRetriever retriever = new LocationRetriever();
 	private VerifyingWifiLocationCalculator calculator;
 	private WifiLocationDatabase database;
 	private WifiManager wifiManager;
-	private LocationRetriever retriever = new LocationRetriever();
 	private Thread thread;
 	private Set<String> toRetrieve;
 	private final Runnable retrieveAction = new Runnable() {

@@ -1,7 +1,6 @@
 package org.microg.nlp.backend.apple;
 
 import android.app.Activity;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,10 +17,9 @@ import java.util.List;
 
 public class PregrabActivity extends Activity {
 	private static final String TAG = PregrabActivity.class.getName();
-	private static final float WIRE_LATLON = 1E8F;
 
+	private final List<WifiOverlayItem> items = new ArrayList<WifiOverlayItem>();
 	private MapView mapView;
-	private List<WifiOverlayItem> items = new ArrayList<WifiOverlayItem>();
 	private WifiLocationDatabase database;
 	private Drawable overlayDrawable;
 	private Overlay wifisOverlay;
@@ -142,11 +140,6 @@ public class PregrabActivity extends Activity {
 		@Override
 		public int size() {
 			return items.size();
-		}
-
-		@Override
-		public void draw(Canvas canvas, MapView view, boolean b) {
-			super.draw(canvas, view, b);
 		}
 	}
 }

@@ -125,7 +125,7 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
 	}
 
 	public class Editor {
-		private SQLiteDatabase db;
+		private final SQLiteDatabase db;
 
 		public Editor() {
 			db = getWritableDatabase();

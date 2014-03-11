@@ -50,7 +50,7 @@ public class VerifyingWifiLocationCalculator {
 		return false;
 	}
 
-	private static boolean combineClasses(Set<Set<Location>> classes, double accuracy) {
+	private static void combineClasses(Set<Set<Location>> classes, double accuracy) {
 		boolean changed = false;
 		for (Set<Location> locClass : classes) {
 			for (Set<Location> otherLocClass : classes) {
@@ -68,7 +68,6 @@ public class VerifyingWifiLocationCalculator {
 		if (changed) {
 			combineClasses(classes, accuracy);
 		}
-		return changed;
 	}
 
 	public Location calculate(Set<Location> locations) {
