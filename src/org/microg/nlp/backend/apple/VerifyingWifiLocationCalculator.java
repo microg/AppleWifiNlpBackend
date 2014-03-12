@@ -13,6 +13,7 @@ public class VerifyingWifiLocationCalculator {
 	private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 	private static final int MAX_WIFI_RADIUS = 500;
 	private static final float ACCURACY_WEIGHT = 50;
+	private static final int MIN_SIGNAL_LEVEL = -200;
 	private final WifiLocationDatabase database;
 	private final String provider;
 
@@ -117,11 +118,15 @@ public class VerifyingWifiLocationCalculator {
 		return null;
 	}
 
+	private int getSignalLevel(Location location) {
+		return Math.abs(location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL) - MIN_SIGNAL_LEVEL);
+	}
+
 	private Location combine(Set<Location> locations) {
 		float minSignal = Integer.MAX_VALUE, maxSignal = Integer.MIN_VALUE;
 		for (Location location : locations) {
-			minSignal = Math.min(minSignal, location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL));
-			maxSignal = Math.max(maxSignal, location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL));
+			minSignal = Math.min(minSignal, getSignalLevel(location));
+			maxSignal = Math.max(maxSignal, getSignalLevel(location));
 		}
 		double totalWeight = 0;
 		double latitude = 0;
@@ -132,7 +137,7 @@ public class VerifyingWifiLocationCalculator {
 		long verified = -1;
 		for (Location location : locations) {
 			if (location != null) {
-				double weight = (((float) (location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL)) - minSignal) / maxSignal)
+				double weight = (((float) (getSignalLevel(location)) - minSignal) / (maxSignal - minSignal))
 						+ ACCURACY_WEIGHT / Math.max(location.getAccuracy(), ACCURACY_WEIGHT);
 				Log.d(TAG, String.format("Using with weight=%f mac=%s signal=%d accuracy=%f latitude=%f longitude=%f", weight, location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS), location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL), location.getAccuracy(), location.getLatitude(), location.getLongitude()));
 				totalWeight += weight;
