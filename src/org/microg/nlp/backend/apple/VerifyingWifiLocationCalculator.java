@@ -137,8 +137,8 @@ public class VerifyingWifiLocationCalculator {
 		long verified = -1;
 		for (Location location : locations) {
 			if (location != null) {
-				double weight = (((float) (getSignalLevel(location)) - minSignal) / (maxSignal - minSignal))
-						+ ACCURACY_WEIGHT / Math.max(location.getAccuracy(), ACCURACY_WEIGHT);
+				double weight = Math.pow((((float) (getSignalLevel(location)) - minSignal) / (maxSignal - minSignal))
+						+ ACCURACY_WEIGHT / Math.max(location.getAccuracy(), ACCURACY_WEIGHT), 2);
 				Log.d(TAG, String.format("Using with weight=%f mac=%s signal=%d accuracy=%f latitude=%f longitude=%f", weight, location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS), location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL), location.getAccuracy(), location.getLatitude(), location.getLongitude()));
 				totalWeight += weight;
 				latitude += location.getLatitude() * weight;
