@@ -153,6 +153,10 @@ public class VerifyingWifiLocationCalculator {
 				}
 			}
 		}
+		if (locations.size() < 3) {
+			// This location can't be accurate
+			accuracy *= 2;
+		}
 		Bundle extras = new Bundle();
 		extras.putInt("COMBINED_OF", locations.size());
 		if (verified != -1) {
