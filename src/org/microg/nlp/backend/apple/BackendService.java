@@ -24,10 +24,11 @@ public class BackendService extends LocationBackendService {
 	private final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			reportUpdate();
+			if (running) reportUpdate();
 		}
 	};
 	private final LocationRetriever retriever = new LocationRetriever();
+	private boolean running = false;
 	private VerifyingWifiLocationCalculator calculator;
 	private WifiLocationDatabase database;
 	private WifiManager wifiManager;
@@ -37,32 +38,34 @@ public class BackendService extends LocationBackendService {
 		@Override
 		public void run() {
 			while (toRetrieve != null && !toRetrieve.isEmpty()) {
-				Set<String> now = new HashSet<String>();
-				for (String s : toRetrieve) {
-					now.add(s);
-					if (now.size() == 10) break;
-				}
-				Log.d(TAG, "Requesting Apple for " + now.size() + " locations");
-				try {
-					Collection<Location> response = retriever.retrieveLocations(now);
-					WifiLocationDatabase.Editor editor = database.edit();
-					for (Location location : response) {
-						editor.put(location);
-						toRetrieve.remove(location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS));
+				if (running) {
+					Set<String> now = new HashSet<String>();
+					for (String s : toRetrieve) {
+						now.add(s);
+						if (now.size() == 10) break;
 					}
-					for (String mac : now) {
-						if (toRetrieve.contains(mac)) {
-							Bundle extras = new Bundle();
-							extras.putString(LocationRetriever.EXTRA_MAC_ADDRESS, mac);
-							editor.put(LocationHelper.create("unknown", System.currentTimeMillis(), extras));
-							toRetrieve.remove(mac);
+					Log.d(TAG, "Requesting Apple for " + now.size() + " locations");
+					try {
+						Collection<Location> response = retriever.retrieveLocations(now);
+						WifiLocationDatabase.Editor editor = database.edit();
+						for (Location location : response) {
+							editor.put(location);
+							toRetrieve.remove(location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS));
 						}
+						for (String mac : now) {
+							if (toRetrieve.contains(mac)) {
+								Bundle extras = new Bundle();
+								extras.putString(LocationRetriever.EXTRA_MAC_ADDRESS, mac);
+								editor.put(LocationHelper.create("unknown", System.currentTimeMillis(), extras));
+								toRetrieve.remove(mac);
+							}
+						}
+						editor.end();
+						// Forcing update, because new mapping data is available
+						reportUpdate();
+					} catch (Exception e) {
+						Log.w(TAG, e);
 					}
-					editor.end();
-					// Forcing update, because new mapping data is available
-					reportUpdate();
-				} catch (Exception e) {
-					Log.w(TAG, e);
 				}
 				synchronized (thread) {
 					try {
@@ -88,6 +91,9 @@ public class BackendService extends LocationBackendService {
 	}
 
 	private Location calculate() {
+		if (!running) {
+			return null;
+		}
 		Collection<ScanResult> scanResults = wifiManager.getScanResults();
 		Set<Location> locations = new HashSet<Location>();
 		Set<String> unknown = new HashSet<String>();
@@ -136,10 +142,12 @@ public class BackendService extends LocationBackendService {
 		calculator = new VerifyingWifiLocationCalculator("apple", database);
 		wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 		registerReceiver(wifiBroadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		running = true;
 	}
 
 	@Override
 	protected void onClose() {
+		running = false;
 		unregisterReceiver(wifiBroadcastReceiver);
 		calculator = null;
 		database.close();
