@@ -52,23 +52,11 @@ public class VerifyingWifiLocationCalculator {
 	}
 
 	private static void combineClasses(Set<Set<Location>> classes, double accuracy) {
-		boolean changed = false;
-		for (Set<Location> locClass : classes) {
-			for (Set<Location> otherLocClass : classes) {
-				if (!locClass.equals(otherLocClass)) {
-					for (Location location : locClass) {
-						if (locationCompatibleWithClass(location, otherLocClass, accuracy)) {
-							locClass.addAll(otherLocClass);
-							otherLocClass.addAll(locClass);
-							changed = true;
-						}
-					}
-				}
-			}
-		}
-		if (changed) {
-			combineClasses(classes, accuracy);
-		}
+		/*
+		 * TODO
+		 * The old routine was never tested and caused Exceptions in the rare case it has to do something
+		 * Need to write a new one here, but first priority is to not cause problems
+		 */
 	}
 
 	public Location calculate(Set<Location> locations) {
