@@ -30,3 +30,5 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+The launcher icon (res/drawable-*/ic_launcher.png) is created using the [Launcher Icon Generator from Android Asset Studio](https://android-ui-utils.googlecode.com/hg/asset-studio/dist/icons-launcher.html) and thus licensed under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/).
