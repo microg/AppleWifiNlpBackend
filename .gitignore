@@ -4,3 +4,6 @@ out/
 *.iml
 build/
 *.apk
+.gradle/
+gradle/
+gradlew

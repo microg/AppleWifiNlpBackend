@@ -31,10 +31,5 @@
             <meta-data android:name="org.microg.nlp.BACKEND_SUMMARY" android:value="@string/summary" />
         </service>
         <activity android:name=".PregrabActivity" />
-        <receiver android:name=".WifiScanResultsReceiver">
-            <intent-filter>
-                <action android:name="android.net.wifi.SCAN_RESULTS" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
