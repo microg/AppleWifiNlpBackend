@@ -32,9 +32,6 @@ public class PregrabActivity extends Activity {
 		database = new WifiLocationDatabase(this);
 		retriever = new LocationRetriever();
 		mapView = (MapView) findViewById(R.id.map);
-		// TODO
-		mapView.getController().setZoom(16);
-		mapView.getController().setCenter(new GeoPoint(50745953, 7171655));
 		overlayDrawable = getResources().getDrawable(R.drawable.dot);
 		wifisOverlay = new Overlay();
 		centerOverlay = new CenterOverlay();

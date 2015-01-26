@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">AppleWifiNlpBackend</string>
+	<string name="backend_name">Apple Wifi Backend</string>
+	<string name="summary">Locate using Apple\'s online Wi-Fi database</string>
 </resources>

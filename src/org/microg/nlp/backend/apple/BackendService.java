@@ -90,7 +90,7 @@ public class BackendService extends LocationBackendService {
 		return null;
 	}
 
-	private Location calculate() {
+	private synchronized Location calculate() {
 		if (!running) {
 			return null;
 		}
@@ -137,7 +137,7 @@ public class BackendService extends LocationBackendService {
 	}
 
 	@Override
-	protected void onOpen() {
+	protected synchronized void onOpen() {
 		database = new WifiLocationDatabase(this);
 		calculator = new VerifyingWifiLocationCalculator("apple", database);
 		wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -146,7 +146,7 @@ public class BackendService extends LocationBackendService {
 	}
 
 	@Override
-	protected void onClose() {
+	protected synchronized void onClose() {
 		running = false;
 		unregisterReceiver(wifiBroadcastReceiver);
 		calculator = null;
