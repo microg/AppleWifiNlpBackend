@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class BackendService extends LocationBackendService implements WiFiBackendHelper.Listener {
 
-    private static final String TAG = BackendService.class.getName();
+    private static final String TAG = "AppleNlpBackendService";
     private static final long THIRTY_DAYS = 2592000000L;
     private final LocationRetriever retriever = new LocationRetriever();
     private boolean running = false;
@@ -123,6 +123,7 @@ public class BackendService extends LocationBackendService implements WiFiBacken
 
     @Override
     protected synchronized void onOpen() {
+        Log.d(TAG, "onOpen");
         database = new WifiLocationDatabase(this);
         calculator = new VerifyingWifiLocationCalculator("apple", database);
         backendHelper.onOpen();
@@ -131,6 +132,7 @@ public class BackendService extends LocationBackendService implements WiFiBacken
 
     @Override
     protected synchronized void onClose() {
+        Log.d(TAG, "onClose");
         running = false;
         backendHelper.onClose();
         calculator = null;

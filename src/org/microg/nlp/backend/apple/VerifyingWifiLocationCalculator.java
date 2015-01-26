@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 public class VerifyingWifiLocationCalculator {
-    private static final String TAG = VerifyingWifiLocationCalculator.class.getName();
+    private static final String TAG = "AppleNlpCalculator";
 
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
     private static final int MAX_WIFI_RADIUS = 500;
