@@ -49,9 +49,13 @@ android {
     }
 
     productFlavors {
+        /* Google failed to make compileSdkVersion a part of a product flavor. To not break
+         * builds for non-Google-API users, this is commented out by default.
+         * Enable by adding a "/" at the end of this line *
         WithMaps {
             compileSdkVersion 'Google Inc.:Google APIs:21'
         }
+        //*/
         NoMaps {
             sourceSets.main.java.exclude 'org/microg/nlp/backend/apple/PregrabActivity.java'
         }
