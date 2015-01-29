@@ -53,7 +53,7 @@ android {
             compileSdkVersion 'Google Inc.:Google APIs:21'
         }
         NoMaps {
-            sourceSets.main.java.exclude 'src/org/microg/nlp/backend/apple/PregrabActivity.java'
+            sourceSets.main.java.exclude 'org/microg/nlp/backend/apple/PregrabActivity.java'
         }
     }
 }
