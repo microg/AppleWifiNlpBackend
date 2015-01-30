@@ -32,6 +32,8 @@ repositories {
 dependencies {
     compile project(':UnifiedNlpApi')
     compile 'com.squareup.wire:wire-runtime:1.5.0'
+    compile 'org.osmdroid:osmdroid-android:4.3'
+    compile 'org.slf4j:slf4j-android:1.6.1-RC1'
 }
 
 android {
@@ -45,19 +47,6 @@ android {
             java.srcDirs = ['src']
             aidl.srcDirs = ['src']
             res.srcDirs = ['res']
-        }
-    }
-
-    productFlavors {
-        /* Google failed to make compileSdkVersion a part of a product flavor. To not break
-         * builds for non-Google-API users, this is commented out by default.
-         * Enable by adding a "/" at the end of this line *
-        WithMaps {
-            compileSdkVersion 'Google Inc.:Google APIs:21'
-        }
-        //*/
-        NoMaps {
-            sourceSets.main.java.exclude 'org/microg/nlp/backend/apple/PregrabActivity.java'
         }
     }
 }

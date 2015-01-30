@@ -73,28 +73,33 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
     private Location getLocation(Cursor cursor) {
         Location location = new Location("database");
         Bundle extras = new Bundle();
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_MAC))) {
-            extras.putString(LocationRetriever.EXTRA_MAC_ADDRESS,
-                    cursor.getString(cursor.getColumnIndex(FIELD_MAC)));
+        int i = cursor.getColumnIndex(FIELD_MAC);
+        if (i != -1 && !cursor.isNull(i)) {
+            extras.putString(LocationRetriever.EXTRA_MAC_ADDRESS, cursor.getString(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_LATITUDE))) {
-            location.setLatitude(cursor.getDouble(cursor.getColumnIndex(FIELD_LATITUDE)));
+        i = cursor.getColumnIndex(FIELD_LATITUDE);
+        if (i != -1 && !cursor.isNull(i)) {
+            location.setLatitude(cursor.getDouble(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_LONGITUDE))) {
-            location.setLongitude(cursor.getDouble(cursor.getColumnIndex(FIELD_LONGITUDE)));
+        i = cursor.getColumnIndex(FIELD_LONGITUDE);
+        if (i != -1 && !cursor.isNull(i)) {
+            location.setLongitude(cursor.getDouble(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_ALTITUDE))) {
-            location.setAltitude(cursor.getDouble(cursor.getColumnIndex(FIELD_ALTITUDE)));
+        i = cursor.getColumnIndex(FIELD_ALTITUDE);
+        if (i != -1 && !cursor.isNull(i)) {
+            location.setAltitude(cursor.getDouble(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_ACCURACY))) {
-            location.setAccuracy(cursor.getFloat(cursor.getColumnIndex(FIELD_ACCURACY)));
+        i = cursor.getColumnIndex(FIELD_ACCURACY);
+        if (i != -1 && !cursor.isNull(i)) {
+            location.setAccuracy(cursor.getFloat(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_TIME))) {
-            location.setTime(cursor.getLong(cursor.getColumnIndex(FIELD_TIME)));
+        i = cursor.getColumnIndex(FIELD_TIME);
+        if (i != -1 && !cursor.isNull(i)) {
+            location.setTime(cursor.getLong(i));
         }
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(FIELD_VERIFIED))) {
-            extras.putLong(LocationRetriever.EXTRA_VERIFIED_TIME,
-                    cursor.getLong(cursor.getColumnIndex(FIELD_VERIFIED)));
+        i = cursor.getColumnIndex(FIELD_VERIFIED);
+        if (i != -1 && !cursor.isNull(i)) {
+            extras.putLong(LocationRetriever.EXTRA_VERIFIED_TIME, cursor.getLong(i));
         }
         location.setExtras(extras);
         return location;
@@ -144,7 +149,8 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
 
         public void put(Location location) {
             ContentValues values = new ContentValues();
-            values.put(FIELD_MAC, location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS));
+            values.put(FIELD_MAC, location.getExtras().getString(LocationRetriever
+                    .EXTRA_MAC_ADDRESS));
             values.put(FIELD_LATITUDE, location.getLatitude());
             values.put(FIELD_LONGITUDE, location.getLongitude());
             if (location.hasAltitude()) {
@@ -154,7 +160,8 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
                 values.put(FIELD_ACCURACY, location.getAccuracy());
             }
             values.put(FIELD_TIME, location.getTime());
-            values.put(FIELD_VERIFIED, location.getExtras().getLong(LocationRetriever.EXTRA_VERIFIED_TIME));
+            values.put(FIELD_VERIFIED, location.getExtras().getLong(LocationRetriever
+                    .EXTRA_VERIFIED_TIME));
             db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         }
 
