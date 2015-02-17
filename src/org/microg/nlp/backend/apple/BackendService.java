@@ -20,7 +20,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.microg.nlp.api.LocationBackendService;
+import org.microg.nlp.api.HelperLocationBackendService;
 import org.microg.nlp.api.LocationHelper;
 import org.microg.nlp.api.WiFiBackendHelper;
 
@@ -28,7 +28,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BackendService extends LocationBackendService implements WiFiBackendHelper.Listener {
+import static org.microg.nlp.api.WiFiBackendHelper.WiFi;
+
+public class BackendService extends HelperLocationBackendService
+        implements WiFiBackendHelper.Listener {
 
     private static final String TAG = "AppleNlpBackendService";
     private static final long THIRTY_DAYS = 2592000000L;
@@ -69,7 +72,7 @@ public class BackendService extends LocationBackendService implements WiFiBacken
                         }
                         editor.end();
                         // Forcing update, because new mapping data is available
-                        report(calculate());
+                        report(calculate(backendHelper.getWiFis()));
                     } catch (Exception e) {
                         Log.w(TAG, e);
                     }
@@ -88,25 +91,18 @@ public class BackendService extends LocationBackendService implements WiFiBacken
     };
 
     @Override
-    protected Location update() {
-        backendHelper.onUpdate();
-        return null;
-    }
-
-    @Override
     public void onCreate() {
         super.onCreate();
-        backendHelper = new WiFiBackendHelper(this, this);
+        addHelper(backendHelper = new WiFiBackendHelper(this, this));
     }
 
-    private synchronized Location calculate() {
+    private synchronized Location calculate(Set<WiFi> wiFis) {
         if (!running) {
             return null;
         }
-        Set<WiFiBackendHelper.WiFi> wiFis = backendHelper.getWiFis();
         Set<Location> locations = new HashSet<>();
         Set<String> unknown = new HashSet<>();
-        for (WiFiBackendHelper.WiFi wifi : wiFis) {
+        for (WiFi wifi : wiFis) {
             Location location = database.get(wifi.getBssid());
             if (location != null) {
                 if ((location.getTime() + THIRTY_DAYS) < System.currentTimeMillis()) {
@@ -140,17 +136,17 @@ public class BackendService extends LocationBackendService implements WiFiBacken
     @Override
     protected synchronized void onOpen() {
         Log.d(TAG, "onOpen");
+        super.onOpen();
         database = new WifiLocationDatabase(this);
         calculator = new VerifyingWifiLocationCalculator("apple", database);
-        backendHelper.onOpen();
         running = true;
     }
 
     @Override
     protected synchronized void onClose() {
         Log.d(TAG, "onClose");
+        super.onClose();
         running = false;
-        backendHelper.onClose();
         calculator = null;
         database.close();
         if (thread != null) {
@@ -161,7 +157,7 @@ public class BackendService extends LocationBackendService implements WiFiBacken
     }
 
     @Override
-    public void onWiFisChanged(Set<WiFiBackendHelper.WiFi> wiFis) {
-        if (running) report(calculate());
+    public void onWiFisChanged(Set<WiFi> wiFis) {
+        if (running) report(calculate(wiFis));
     }
 }
