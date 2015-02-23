@@ -36,7 +36,6 @@ public class BackendService extends HelperLocationBackendService
     private static final String TAG = "AppleNlpBackendService";
     private static final long THIRTY_DAYS = 2592000000L;
     private final LocationRetriever retriever = new LocationRetriever();
-    private boolean running = false;
     private WiFiBackendHelper backendHelper;
     private VerifyingWifiLocationCalculator calculator;
     private WifiLocationDatabase database;
@@ -46,7 +45,7 @@ public class BackendService extends HelperLocationBackendService
         @Override
         public void run() {
             while (toRetrieve != null && !toRetrieve.isEmpty()) {
-                if (running) {
+                if (isConnected()) {
                     Set<String> now = new HashSet<>();
                     for (String s : toRetrieve) {
                         now.add(s);
@@ -97,7 +96,7 @@ public class BackendService extends HelperLocationBackendService
     }
 
     private synchronized Location calculate(Set<WiFi> wiFis) {
-        if (!running) {
+        if (!isConnected()) {
             return null;
         }
         Set<Location> locations = new HashSet<>();
@@ -139,14 +138,12 @@ public class BackendService extends HelperLocationBackendService
         super.onOpen();
         database = new WifiLocationDatabase(this);
         calculator = new VerifyingWifiLocationCalculator("apple", database);
-        running = true;
     }
 
     @Override
     protected synchronized void onClose() {
         Log.d(TAG, "onClose");
         super.onClose();
-        running = false;
         calculator = null;
         database.close();
         if (thread != null) {
@@ -158,6 +155,6 @@ public class BackendService extends HelperLocationBackendService
 
     @Override
     public void onWiFisChanged(Set<WiFi> wiFis) {
-        if (running) report(calculate(wiFis));
+        if (isConnected()) report(calculate(wiFis));
     }
 }
