@@ -16,7 +16,7 @@
   -->
 
 <resources>
-	<string name="app_name">AppleWifiNlpBackend</string>
+	<string name="app_name">Apple UnifiedNlp Backend</string>
 	<string name="backend_name">Apple Wi-Fi</string>
 	<string name="summary">Locate using Apple\'s online Wi-Fi database</string>
 </resources>

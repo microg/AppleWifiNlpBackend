@@ -16,8 +16,8 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionName="1.1.0"
-    android:versionCode="1100"
+    android:versionName="1.1.1"
+    android:versionCode="10101"
     package="org.microg.nlp.backend.apple">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -29,14 +29,12 @@
 
     <uses-sdk
         android:minSdkVersion="10"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
+
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
-        <uses-library
-            android:name="com.google.android.maps"
-            android:required="false" />
         <service
             android:name=".BackendService"
             android:label="@string/backend_name"
