@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 µg Project Team
+ * Copyright 2013-2016 microG Project Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.3'
+        classpath 'com.android.tools.build:gradle:1.5.0'
     }
 }
 
@@ -32,16 +32,16 @@ repositories {
 dependencies {
     compile 'org.microg:unifiednlp-api:1.5.0'
     compile 'com.squareup.wire:wire-runtime:1.5.0'
-    compile 'org.osmdroid:osmdroid-android:4.3'
-    compile 'org.slf4j:slf4j-android:1.6.1-RC1'
+    compile 'org.osmdroid:osmdroid-android:5.1'
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.0"
+    buildToolsVersion "23.0.2"
 
     lintOptions {
         disable 'InvalidPackage'
+        disable 'ManifestResource'
     }
 }
 
