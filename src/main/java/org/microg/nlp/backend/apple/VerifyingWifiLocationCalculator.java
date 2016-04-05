@@ -64,7 +64,7 @@ public class VerifyingWifiLocationCalculator {
     }
 
     private static boolean locationCompatibleWithClass(Location location, Set<Location> locClass,
-            double accuracy) {
+                                                       double accuracy) {
         for (Location other : locClass) {
             if ((location.distanceTo(other) - location.getAccuracy() - other.getAccuracy() -
                     accuracy) < 0) {
@@ -137,73 +137,50 @@ public class VerifyingWifiLocationCalculator {
 
     private Location combine(Set<Location> locations) {
         float minSignal = Integer.MAX_VALUE, maxSignal = Integer.MIN_VALUE;
+        long verified = -1;
         for (Location location : locations) {
             minSignal = Math.min(minSignal, getSignalLevel(location));
             maxSignal = Math.max(maxSignal, getSignalLevel(location));
-        }
-        double totalWeight = 0;
-        double latitude = 0;
-        double longitude = 0;
-        float accuracy = 0;
-        double altitudeWeight = 0;
-        double altitude = 0;
-        long verified = -1;
-        for (Location location : locations) {
-            if (location != null) {
-                double weight = Math.pow((((float) (getSignalLevel(location)) - minSignal) /
-                        (maxSignal - minSignal))
-                        + ACCURACY_WEIGHT / Math.max(location.getAccuracy(), ACCURACY_WEIGHT), 2);
-                Log.d(TAG, String.format("Using with weight=%f mac=%s signal=%d accuracy=%f " +
-                                "latitude=%f longitude=%f", weight, location.getExtras().getString
-                                (LocationRetriever.EXTRA_MAC_ADDRESS), location.getExtras().getInt
-                                (LocationRetriever.EXTRA_SIGNAL_LEVEL), location.getAccuracy(),
-                        location.getLatitude(), location.getLongitude()));
-                totalWeight += weight;
-                latitude += location.getLatitude() * weight;
-                longitude += location.getLongitude() * weight;
-                accuracy += location.getAccuracy() * weight;
-                if (location.hasAltitude()) {
-                    altitude += location.getAltitude() * weight;
-                    altitudeWeight += weight;
-                }
-                if (location.getExtras().containsKey(LocationRetriever.EXTRA_VERIFIED_TIME)) {
-                    verified = Math.max(verified, location.getExtras().getLong(LocationRetriever
-                            .EXTRA_VERIFIED_TIME));
-                }
+            if (location.getExtras().containsKey(LocationRetriever.EXTRA_VERIFIED_TIME)) {
+                verified = Math.max(verified, location.getExtras().getLong(LocationRetriever.EXTRA_VERIFIED_TIME));
             }
         }
-        if (locations.size() < 3) {
-            // This location can't be accurate
-            accuracy *= 2;
-        }
+
+        final float finalMaxSignal = maxSignal;
+        final float finalMinSignal = minSignal;
         Bundle extras = new Bundle();
         extras.putInt("COMBINED_OF", locations.size());
         if (verified != -1) {
             extras.putLong(LocationRetriever.EXTRA_VERIFIED_TIME, verified);
         }
-        if (altitudeWeight > 0) {
-            return LocationHelper.create(provider, latitude / totalWeight,
-                    longitude / totalWeight, altitude / altitudeWeight,
-                    (float) (accuracy / totalWeight), extras);
-        } else {
-            return LocationHelper.create(provider, latitude / totalWeight,
-                    longitude / totalWeight, (float) (accuracy / totalWeight), extras);
-        }
+        return LocationHelper.weightedAverage(provider, locations, new LocationHelper.LocationBalance() {
+            @Override
+            public double getWeight(Location location) {
+                double weight = calculateWeight(location, finalMinSignal, finalMaxSignal);
+                Log.d(TAG, String.format("Using with weight=%f mac=%s sig=%d acc=%f lat=%f lon=%f", weight,
+                        location.getExtras().getString(LocationRetriever.EXTRA_MAC_ADDRESS),
+                        location.getExtras().getInt(LocationRetriever.EXTRA_SIGNAL_LEVEL), location.getAccuracy(),
+                        location.getLatitude(), location.getLongitude()));
+                return weight;
+            }
+        }, extras);
+    }
+
+    private double calculateWeight(Location location, float minSignal, float maxSignal) {
+        return Math.pow(((float) getSignalLevel(location) - minSignal) / (maxSignal - minSignal) + ACCURACY_WEIGHT / Math.max(location.getAccuracy(), ACCURACY_WEIGHT), 2);
     }
 
     private void verify(Set<Location> cls) {
         WifiLocationDatabase.Editor editor = database.edit();
         for (Location location : cls) {
-            location.getExtras().putLong(LocationRetriever.EXTRA_VERIFIED_TIME,
-                    System.currentTimeMillis());
+            location.getExtras().putLong(LocationRetriever.EXTRA_VERIFIED_TIME, System.currentTimeMillis());
             editor.put(location);
         }
         editor.end();
     }
 
     private boolean isVerified(Location location) {
-        return location.getExtras().getLong(LocationRetriever.EXTRA_VERIFIED_TIME) > System
-                .currentTimeMillis() - ONE_DAY;
+        return location.getExtras().getLong(LocationRetriever.EXTRA_VERIFIED_TIME) > System.currentTimeMillis() - ONE_DAY;
     }
 
 }

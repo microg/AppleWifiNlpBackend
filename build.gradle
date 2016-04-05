@@ -23,14 +23,38 @@ buildscript {
     }
 }
 
+/* This is a hack, trying to provide release updates to F-Droid until it can properly handle Gradle
+applicationId "org.microg.nlp.backend.apple"
+versionName "1.2.1"
+versionCode "20037"
+ */
+
 apply plugin: 'com.android.application'
+
+String getMyVersionName() {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags', '--always', '--dirty'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+int getMyVersionCode() {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', '--count', "HEAD"
+        standardOutput = stdout
+    }
+    return Integer.parseInt(stdout.toString().trim())
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.microg:unifiednlp-api:1.5.0'
+    compile 'org.microg:unifiednlp-api:1.5.3'
     compile 'com.squareup.wire:wire-runtime:1.5.0'
     compile 'org.osmdroid:osmdroid-android:5.1'
 }
@@ -38,6 +62,11 @@ dependencies {
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        versionName getMyVersionName()
+        versionCode (getMyVersionCode() + 20000)
+    }
 
     lintOptions {
         disable 'InvalidPackage'
