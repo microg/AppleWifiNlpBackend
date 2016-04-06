@@ -25,19 +25,19 @@ buildscript {
 
 /* This is a hack, trying to provide release updates to F-Droid until it can properly handle Gradle
 applicationId "org.microg.nlp.backend.apple"
-versionName "1.2.1"
-versionCode "20037"
+versionName "1.2.2"
+versionCode "20038"
  */
 
 apply plugin: 'com.android.application'
 
 String getMyVersionName() {
     def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'describe', '--tags', '--always', '--dirty'
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
+    if (rootProject.file("gradlew").exists())
+        exec { commandLine 'git', 'describe', '--tags', '--always', '--dirty'; standardOutput = stdout }
+    else // automatic build system, don't tag dirty
+        exec { commandLine 'git', 'describe', '--tags', '--always'; standardOutput = stdout }
+    return stdout.toString().trim().substring(1)
 }
 
 int getMyVersionCode() {
@@ -65,7 +65,7 @@ android {
 
     defaultConfig {
         versionName getMyVersionName()
-        versionCode (getMyVersionCode() + 20000)
+        versionCode(getMyVersionCode() + 20000)
     }
 
     lintOptions {
