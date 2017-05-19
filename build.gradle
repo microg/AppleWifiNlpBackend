@@ -16,10 +16,10 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.3.1'
     }
 }
 
@@ -42,10 +42,7 @@ String getMyVersionName() {
 
 int getMyVersionCode() {
     def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-list', '--count', "HEAD"
-        standardOutput = stdout
-    }
+    exec { commandLine 'git', 'rev-list', '--count', "HEAD"; standardOutput = stdout }
     return Integer.parseInt(stdout.toString().trim())
 }
 
@@ -54,14 +51,14 @@ repositories {
 }
 
 dependencies {
-    compile 'org.microg:unifiednlp-api:1.5.3'
+    compile 'org.microg:unifiednlp-api:1.5.6'
     compile 'com.squareup.wire:wire-runtime:1.5.0'
     compile 'org.osmdroid:osmdroid-android:5.1'
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         versionName getMyVersionName()
@@ -71,6 +68,7 @@ android {
     lintOptions {
         disable 'InvalidPackage'
         disable 'ManifestResource'
+        abortOnError false
     }
 }
 
