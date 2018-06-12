@@ -76,9 +76,12 @@ public class BackendService extends HelperLocationBackendService
                         Log.w(TAG, e);
                     }
                 }
-                synchronized (thread) {
+                Thread t = thread;
+                if (t == null) break;
+                //noinspection SynchronizationOnLocalVariableOrMethodParameter
+                synchronized (t) {
                     try {
-                        thread.wait(30000);
+                        t.wait(30000);
                     } catch (InterruptedException e) {
                         break;
                     }
