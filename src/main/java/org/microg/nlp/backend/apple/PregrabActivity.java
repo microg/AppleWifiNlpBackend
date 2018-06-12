@@ -52,7 +52,9 @@ public class PregrabActivity extends Activity {
     private CenterOverlay centerOverlay;
     private LocationRetriever retriever;
     private Paint circlePaint;
+    private Paint errorPaint;
     private MyLocationNewOverlay myLocationOverlay;
+    private static long MAX_AGE = 1000L * 60 * 60 * 24 * 30;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +67,14 @@ public class PregrabActivity extends Activity {
         myLocationOverlay = new MyLocationNewOverlay(this, mapView);
         myLocationOverlay.setDrawAccuracyEnabled(true);
         circlePaint = new Paint();
-        circlePaint.setARGB(0, 255, 100, 100);
+        circlePaint.setARGB(0, 100, 255, 100);
         circlePaint.setAntiAlias(true);
+        errorPaint = new Paint();
+        errorPaint.setARGB(0, 255, 100, 100);
+        errorPaint.setAntiAlias(true);
+        errorPaint.setAlpha(150);
+        errorPaint.setStrokeWidth(5);
+        errorPaint.setStyle(Paint.Style.STROKE);
         mapView.getOverlays().add(wifisOverlay);
         mapView.getOverlays().add(myLocationOverlay);
         mapView.getOverlays().add(centerOverlay);
@@ -88,9 +96,10 @@ public class PregrabActivity extends Activity {
                     @Override
                     public void run() {
                         Location next = database.getNear(LocationHelper.create("temp",
-                                        mapView.getMapCenter().getLatitude(),
-                                        mapView.getMapCenter().getLongitude(), 0),
-                                1).get(0);
+                                mapView.getMapCenter().getLatitude(),
+                                mapView.getMapCenter().getLongitude(), 0),
+                                1, MAX_AGE).get(0);
+                        Log.d(TAG, "Based on location: " + next);
                         String now = next.getExtras().getString("MAC_ADDRESS");
                         try {
                             Collection<Location> response = retriever.retrieveLocations(now);
@@ -98,7 +107,9 @@ public class PregrabActivity extends Activity {
                             float radius = 0;
                             for (Location location : response) {
                                 editor.put(location);
-                                radius = Math.max(location.distanceTo(next), radius);
+                                if (location.hasAccuracy() && location.getAccuracy() != -1) {
+                                    radius = Math.max(location.distanceTo(next), radius);
+                                }
                             }
                             editor.end();
                             Log.d(TAG, "Downloaded " + response.size() + " APs at " + next
@@ -176,16 +187,19 @@ public class PregrabActivity extends Activity {
             Point pnt = new Point();
             for (WifiOverlayItem item : items) {
                 mapView.getProjection().toPixels(item.point, pnt);
-                float radius = (float) (item.size / TileSystem.GroundResolution(item.latitude,
-                        mapView.getZoomLevel()));
-                circlePaint.setAlpha(50);
-                circlePaint.setStyle(Paint.Style.FILL);
-                c.drawCircle(pnt.x, pnt.y, radius, circlePaint);
+                if (item.size == 0) {
+                    c.drawCircle(pnt.x, pnt.y, 20, errorPaint);
+                } else {
+                    float radius = (float) (item.size / TileSystem.GroundResolution(item.latitude,
+                            mapView.getZoomLevel()));
+                    circlePaint.setAlpha(50);
+                    circlePaint.setStyle(Paint.Style.FILL);
+                    c.drawCircle(pnt.x, pnt.y, radius, circlePaint);
 
-                circlePaint.setAlpha(150);
-                circlePaint.setStyle(Paint.Style.STROKE);
-                c.drawCircle(pnt.x, pnt.y, radius, circlePaint);
-
+                    circlePaint.setAlpha(150);
+                    circlePaint.setStyle(Paint.Style.STROKE);
+                    c.drawCircle(pnt.x, pnt.y, radius, circlePaint);
+                }
             }
         }
     }

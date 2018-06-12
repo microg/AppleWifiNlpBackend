@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,13 +133,13 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
         }
     }
 
-    public List<Location> getNear(Location location, int limit) {
+    public List<Location> getNear(Location location, int limit, long maxAge) {
         // TODO: Pythagoras is wrong for LatLon...
         String order = "((" + FIELD_LATITUDE + "-(" + location.getLatitude() + "))*(" +
                 FIELD_LATITUDE + "-(" + location.getLatitude() + "))+(" + FIELD_LONGITUDE + "-("
                 + location.getLongitude() + "))*(" + FIELD_LONGITUDE + "-(" + location
                 .getLongitude() + ")))";
-        Cursor cursor = getReadableDatabase().query(TABLE_NAME, null, null, null, null, null,
+        Cursor cursor = getReadableDatabase().query(TABLE_NAME, null, FIELD_TIME + " > ?", new String[]{Float.toString(System.currentTimeMillis() - maxAge)}, null, null,
                 order, Integer.toString(limit));
         if (cursor != null) {
             List<Location> locations = new ArrayList<Location>();
@@ -164,6 +165,7 @@ public class WifiLocationDatabase extends SQLiteOpenHelper {
         }
 
         public void put(Location location) {
+            if (location == null) return;
             ContentValues values = new ContentValues();
             values.put(FIELD_MAC, location.getExtras().getString(LocationRetriever
                     .EXTRA_MAC_ADDRESS));
